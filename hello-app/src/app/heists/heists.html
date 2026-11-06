@@ -1,0 +1,328 @@
+<h1>Heist Calculator</h1>
+<p class="intro">Work out what a GTA Online heist pays after fees, crew cuts and player splits.</p>
+
+<div class="layout">
+  <form class="panel" (submit)="$event.preventDefault()">
+    @for (version of [formVersion()]; track version) {
+    <label class="field">
+      Heist
+      <select #heistSelect (change)="selectHeist($any(heistSelect.value))">
+        @for (heist of heists; track heist.id) {
+          <option [value]="heist.id" [selected]="heist.id === heistId()">{{ heist.name }}</option>
+        }
+      </select>
+    </label>
+
+    <div class="field-row">
+      <label class="field">
+        Difficulty
+        <select #difficultySelect (change)="difficulty.set($any(difficultySelect.value))">
+          <option value="normal" [selected]="difficulty() === 'normal'">Normal</option>
+          <option value="hard" [selected]="difficulty() === 'hard'">Hard</option>
+        </select>
+      </label>
+      <label class="field">
+        Players
+        <select #playersSelect (change)="selectPlayers(+playersSelect.value)">
+          @for (count of playerOptions(); track count) {
+            <option [value]="count" [selected]="count === players()">{{ count }}</option>
+          }
+        </select>
+      </label>
+    </div>
+
+    @switch (heistId()) {
+      @case ('cayo') {
+        <label class="field">
+          Primary target
+          <select #cayoSelect (change)="cayoPrimaryId.set(cayoSelect.value)">
+            @for (target of cayoPrimary; track target.id) {
+              <option [value]="target.id" [selected]="target.id === cayoPrimaryId()">
+                {{ target.name }} (${{ target[difficulty()] | number }})
+              </option>
+            }
+          </select>
+        </label>
+
+        <fieldset>
+          <legend>Secondary loot (stacks)</legend>
+          @for (loot of cayoSecondary; track loot.id) {
+            <label class="loot-row">
+              <span>{{ loot.name }} <small>{{ loot.bagPercent }}% of a bag</small></span>
+              <input
+                #stackInput
+                type="number"
+                min="0"
+                step="0.5"
+                [value]="cayoStacks()[loot.id] ?? 0"
+                (input)="setStack(loot.id, stackInput.value)"
+              />
+            </label>
+          }
+        </fieldset>
+
+        <label class="field">
+          El Rubio's safe (${{ cayoSafe.min | number }} to ${{ cayoSafe.max | number }})
+          <input
+            #safeInput
+            type="number"
+            min="0"
+            step="500"
+            [value]="cayoSafeValue()"
+            (input)="setAmount(cayoSafeValue, safeInput.value)"
+          />
+        </label>
+
+        <label class="check">
+          <input #repeatBox type="checkbox" [checked]="repeatRun()" (change)="repeatRun.set(repeatBox.checked)" />
+          Repeat run (adds the target's secondary loot bonus)
+        </label>
+      }
+
+      @case ('casino') {
+        <label class="field">
+          Vault target
+          <select #casinoSelect (change)="casinoTargetId.set(casinoSelect.value)">
+            @for (target of casinoTargets; track target.id) {
+              <option [value]="target.id" [selected]="target.id === casinoTargetId()">
+                {{ target.name }}
+              </option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          Share of the vault taken (%)
+          <input
+            #takeInput
+            type="number"
+            min="0"
+            max="100"
+            [value]="takePercent()"
+            (input)="setTakePercent(takeInput.value)"
+            (change)="takeInput.value = '' + takePercent()"
+          />
+        </label>
+
+        <label class="field">
+          Hacker
+          <select #hackerSelect (change)="hackerId.set(hackerSelect.value)">
+            @for (member of hackers; track member.id) {
+              <option [value]="member.id" [selected]="member.id === hackerId()">
+                {{ member.name }} ({{ member.cut * 100 | number: '1.0-0' }}%)
+              </option>
+            }
+          </select>
+        </label>
+        <label class="field">
+          Gunman
+          <select #gunmanSelect (change)="gunmanId.set(gunmanSelect.value)">
+            @for (member of gunmen; track member.id) {
+              <option [value]="member.id" [selected]="member.id === gunmanId()">
+                {{ member.name }} ({{ member.cut * 100 | number: '1.0-0' }}%)
+              </option>
+            }
+          </select>
+        </label>
+        <label class="field">
+          Driver
+          <select #driverSelect (change)="driverId.set(driverSelect.value)">
+            @for (member of drivers; track member.id) {
+              <option [value]="member.id" [selected]="member.id === driverId()">
+                {{ member.name }} ({{ member.cut * 100 | number: '1.0-0' }}%)
+              </option>
+            }
+          </select>
+        </label>
+
+        <label class="check">
+          <input #firstBox type="checkbox" [checked]="firstRun()" (change)="firstRun.set(firstBox.checked)" />
+          First finale after the weekly reset
+        </label>
+      }
+
+      @case ('bogdan') {
+        <label class="check">
+          <input #firstBox type="checkbox" [checked]="firstRun()" (change)="firstRun.set(firstBox.checked)" />
+          First completion this week
+        </label>
+      }
+
+      @case ('kortz') {
+        <label class="field">
+          Primary target
+          <select #paintingSelect (change)="paintingId.set(paintingSelect.value)">
+            @for (painting of paintings(); track painting.id) {
+              <option [value]="painting.id" [selected]="painting.id === selectedPaintingId()">
+                {{ painting.name }}{{ painting.estimated ? ' (estimated)' : '' }}
+              </option>
+            }
+            <option [value]="customPainting" [selected]="selectedPaintingId() === customPainting">
+              Custom value
+            </option>
+          </select>
+        </label>
+
+        @if (selectedPaintingId() === customPainting) {
+          <label class="field">
+            Value on your planning board
+            <input
+              #customInput
+              type="number"
+              min="0"
+              step="1000"
+              [value]="customValue()"
+              (input)="setAmount(customValue, customInput.value)"
+            />
+          </label>
+        } @else {
+          <label class="check">
+            <input #firstBox type="checkbox" [checked]="firstRun()" (change)="firstRun.set(firstBox.checked)" />
+            First sale after the weekly reset
+          </label>
+        }
+
+        <fieldset>
+          <legend>Secondary loot (items)</legend>
+          @for (loot of kortzSecondary; track loot.id) {
+            <label class="loot-row" [class.locked]="loot.needsTwoPlayers && players() < 2">
+              <span>
+                {{ loot.name }} <small>{{ loot.bagPercent }}% of a bag</small>
+                @if (loot.needsTwoPlayers && players() < 2) {
+                  <small>Needs 2 players</small>
+                }
+              </span>
+              <input
+                #itemInput
+                type="number"
+                min="0"
+                step="1"
+                [disabled]="loot.needsTwoPlayers && players() < 2"
+                [value]="kortzItems()[loot.id] ?? 0"
+                (input)="setKortzItem(loot.id, itemInput.value)"
+              />
+            </label>
+          }
+        </fieldset>
+
+        <label class="check">
+          <input #buyerBox type="checkbox" [checked]="buyerRequest()" (change)="buyerRequest.set(buyerBox.checked)" />
+          Buyer's Request completed
+        </label>
+        <label class="check">
+          <input #feeBox type="checkbox" [checked]="payPlanningFee()" (change)="payPlanningFee.set(feeBox.checked)" />
+          Paid the $100,000 planning fee (extra setups only)
+        </label>
+      }
+    }
+
+    <label class="check">
+      <input #eliteBox type="checkbox" [checked]="elite()" (change)="elite.set(eliteBox.checked)" />
+      Elite Challenge completed
+    </label>
+
+    @if (heistId() !== 'kortz' && players() > 1) {
+      <fieldset>
+        <legend>Player cuts (%)</legend>
+        @for (cut of cuts(); track $index) {
+          <label class="loot-row">
+            <span>{{ $index === 0 ? 'Host' : 'Player ' + ($index + 1) }}</span>
+            <input
+              #cutInput
+              type="number"
+              min="0"
+              max="100"
+              step="5"
+              [value]="cut"
+              (input)="setCut($index, cutInput.value)"
+            />
+          </label>
+        }
+      </fieldset>
+    }
+    }
+
+    <button type="button" class="reset" (click)="resetValues()">Reset values</button>
+  </form>
+
+  <section class="panel results" aria-labelledby="results-title" aria-live="polite">
+    <h2 id="results-title">Estimated payout</h2>
+
+    <dl>
+      @for (line of result().lines; track line.label) {
+        <div>
+          <dt>{{ line.label }}</dt>
+          <dd [class.negative]="line.amount < 0">
+            {{ line.amount < 0 ? '−' : '' }}${{ (line.amount < 0 ? -line.amount : line.amount) | number: '1.0-0' }}
+          </dd>
+        </div>
+      }
+      <div class="total">
+        <dt>{{ heistId() === 'kortz' ? 'Crew total' : 'Take for players' }}</dt>
+        <dd>${{ result().crewTake | number: '1.0-0' }}</dd>
+      </div>
+    </dl>
+
+    @if (result().shares.length > 0) {
+      <h3>Each player gets</h3>
+      <dl>
+        @for (share of result().shares; track share.name) {
+          <div>
+            <dt>{{ share.name }} ({{ share.cut }}%)</dt>
+            <dd>${{ share.amount | number: '1.0-0' }}</dd>
+          </div>
+        }
+      </dl>
+      <p class="fine">
+        The host's amount has the ${{ setupFee() | number }} setup fee taken off.
+        @if (elite()) {
+          Everyone's amount includes the Elite Challenge bonus.
+        }
+      </p>
+    } @else {
+      <p class="fine">
+        Sources don't confirm how Kortz Center money is split, so this is the crew total.
+      </p>
+    }
+
+    @for (warning of result().warnings; track warning) {
+      <p class="warning">{{ warning }}</p>
+    }
+  </section>
+</div>
+
+<div class="notes">
+  @switch (heistId()) {
+    @case ('cayo') {
+      <p>
+        Secondary loot uses the middle of each value range, so your real total can vary a little.
+        Fees come off the whole take, and the weekly reset changes target odds rather than payouts.
+      </p>
+    }
+    @case ('casino') {
+      <p>
+        First-finale values come from community testing (about 1.86×). Rockstar confirmed the weekly
+        bonus, but not the multiplier. Sources disagree on Gustavo Mota's cut (8% or 9%), and 9% is
+        used here.
+      </p>
+    }
+    @case ('bogdan') {
+      <p>
+        There's no main target to choose in this mission. The payout is treated as a total shared
+        between players, but sources don't state this clearly, so check it against your in-game
+        screen. Its Elite Challenge pays $50,000 on both difficulties.
+      </p>
+    }
+    @case ('kortz') {
+      <p>
+        The primary painting rotates weekly, and only some values are confirmed. Paintings marked
+        estimated use the 4× first-sale ratio seen on confirmed paintings, so use Custom value if
+        your planning board shows a different figure. Secondary loot uses the middle of each range.
+      </p>
+    }
+  }
+  <p>
+    Values reflect Title Update 1.73 (July 2026) from community guides, not official Rockstar
+    figures, and may change. This is an unofficial fan tool, not connected to Rockstar Games.
+  </p>
+</div>

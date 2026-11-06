@@ -1,0 +1,37 @@
+<section [attr.aria-label]="heading()">
+  <h2>{{ heading() }}</h2>
+
+  <div class="carousel-stage">
+    <button type="button" aria-label="Previous album" (click)="previousAlbum()">&#8249;</button>
+    <div class="carousel-viewport" [class]="slideDirection()">
+      @for (album of [currentAlbum()]; track album.title) {
+        <img
+          [src]="album.cover"
+          [alt]="album.title + ' album cover'"
+          width="300"
+          height="300"
+          animate.enter="slide-enter"
+          animate.leave="slide-leave"
+        />
+      }
+    </div>
+    <button type="button" aria-label="Next album" (click)="nextAlbum()">&#8250;</button>
+  </div>
+
+  <p class="carousel-caption">
+    {{ currentAlbum().title }} ({{ currentAlbum().year }})
+    <span>~{{ currentAlbum().estimatedUnits / 1000000 | number: '1.1-1' }}M units worldwide</span>
+    <span>{{ currentAlbum().artist }} &middot; {{ albumIndex() + 1 }} / {{ albums().length }}</span>
+  </p>
+
+  <div class="carousel-dots">
+    @for (album of albums(); track album.title; let i = $index) {
+      <button
+        type="button"
+        [class.active]="i === albumIndex()"
+        [attr.aria-label]="'Show ' + album.title"
+        (click)="showAlbum(i)"
+      ></button>
+    }
+  </div>
+</section>

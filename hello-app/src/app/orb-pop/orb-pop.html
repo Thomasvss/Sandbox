@@ -1,0 +1,76 @@
+<h1>Orb Pop</h1>
+<p class="intro">Blast the bouncing orbs. Each hit splits one in two, until nothing is left.</p>
+
+<div class="stage">
+  <canvas #canvas role="img" aria-label="Orb Pop game arena"></canvas>
+
+  @switch (phase()) {
+    @case ('ready') {
+      <div class="overlay">
+        <h2>Ready?</h2>
+        <p>Best: {{ bestScore() }}</p>
+        <button type="button" (click)="start()">Start</button>
+      </div>
+    }
+    @case ('paused') {
+      <div class="overlay">
+        <h2>Paused</h2>
+        <button type="button" (click)="resume()">Resume</button>
+      </div>
+    }
+    @case ('between') {
+      <div class="overlay light">
+        <h2>{{ message() }}</h2>
+      </div>
+    }
+    @case ('over') {
+      <div class="overlay">
+        <h2>Game over</h2>
+        <p class="score">{{ finalScore() }}</p>
+        <p>
+          Reached level {{ finalLevel() }}.
+          {{ isNewBest() ? 'New best score!' : 'Best: ' + bestScore() }}
+        </p>
+        <button type="button" (click)="start()">Play again</button>
+      </div>
+    }
+  }
+</div>
+
+<div class="touch-controls">
+  <button
+    type="button"
+    aria-label="Move left"
+    (pointerdown)="hold('left', true)"
+    (pointerup)="hold('left', false)"
+    (pointerleave)="hold('left', false)"
+    (pointercancel)="hold('left', false)"
+  >
+    &#9664;
+  </button>
+  <button
+    type="button"
+    class="fire"
+    (pointerdown)="hold('fire', true)"
+    (pointerup)="hold('fire', false)"
+    (pointerleave)="hold('fire', false)"
+    (pointercancel)="hold('fire', false)"
+  >
+    Fire
+  </button>
+  <button
+    type="button"
+    aria-label="Move right"
+    (pointerdown)="hold('right', true)"
+    (pointerup)="hold('right', false)"
+    (pointerleave)="hold('right', false)"
+    (pointercancel)="hold('right', false)"
+  >
+    &#9654;
+  </button>
+</div>
+
+<p class="controls">
+  Move with <kbd>&larr;</kbd> <kbd>&rarr;</kbd> or <kbd>A</kbd> <kbd>D</kbd>. Fire with
+  <kbd>Space</kbd> or <kbd>&uarr;</kbd>. Press <kbd>P</kbd> to pause.
+</p>

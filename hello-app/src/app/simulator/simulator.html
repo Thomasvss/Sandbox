@@ -1,0 +1,69 @@
+<h1>Boss Loot Simulator</h1>
+<p class="intro">Pick a RuneScape 3 boss and open its loot to see what one kill could give you.</p>
+
+<div class="controls">
+  <label for="boss-select">Boss</label>
+  <select id="boss-select" [value]="bossId()" (change)="selectBoss(bossSelect.value)" #bossSelect>
+    @for (boss of bosses; track boss.id) {
+      <option [value]="boss.id">{{ boss.name }}</option>
+    }
+  </select>
+  <button type="button" class="simulate" (click)="simulate()">Simulate</button>
+</div>
+
+<section class="chest" aria-labelledby="chest-title">
+  <header>
+    <h2 id="chest-title">{{ boss().name }} loot</h2>
+    <p class="tally">
+      Kills: {{ kills() | number }} <span aria-hidden="true">&middot;</span> Uniques:
+      {{ uniques() | number }}
+    </p>
+  </header>
+
+  <div class="slots" aria-live="polite">
+    @for (item of loot(); track item; let index = $index) {
+      <div
+        class="slot"
+        [class.unique]="item.tier === 'unique'"
+        [class.rare]="item.tier === 'rare'"
+        [style.animation-delay.ms]="index * 70"
+      >
+        @if (item.quantity > 1) {
+          <span class="quantity">{{ item.quantity | number }}</span>
+        }
+        <span class="icon" aria-hidden="true">{{ iconFor(item.name) }}</span>
+        <span class="name">{{ item.name }}</span>
+        @if (item.noted) {
+          <span class="noted">noted</span>
+        }
+        @if (item.value === null) {
+          <span class="value not-sold">Not sold</span>
+        } @else {
+          <span class="value">{{ item.value | number }} gp</span>
+        }
+      </div>
+    } @empty {
+      <p class="empty">The chest is closed. Press Simulate to open it.</p>
+    }
+  </div>
+
+  @if (loot().length > 0) {
+    <p class="total">Total value: {{ totalValue() | number }} gp</p>
+  }
+
+  @if (gotUnique()) {
+    <p class="banner">Unique drop!</p>
+  }
+</section>
+
+@if (boss().note; as note) {
+  <p class="boss-note">{{ note }}</p>
+}
+
+<p class="source-note">
+  Drop rates come from the
+  <a href="https://runescape.wiki" target="_blank" rel="noopener">RuneScape Wiki</a>, for members on
+  normal mode with no luck boosts. Charms and items that need a quest or task aren't included. Coin
+  values are Grand Exchange prices from {{ pricesDate }}. This is an unofficial fan tool, not
+  connected to Jagex.
+</p>

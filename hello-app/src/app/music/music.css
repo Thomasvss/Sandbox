@@ -1,0 +1,41 @@
+.carousels {
+  display: grid;
+  grid-template-columns: minmax(0, 400px);
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+@media (min-width: 720px) {
+  .carousels {
+    grid-template-columns: repeat(2, minmax(0, 400px));
+  }
+}
+
+@media (min-width: 1400px) {
+  .carousels {
+    grid-template-columns: repeat(4, minmax(0, 400px));
+  }
+}
+
+.genre-rap {
+  --heading-font: 'Permanent Marker', cursive;
+}
+
+.genre-pop {
+  --heading-font: 'Pacifico', cursive;
+}
+
+.genre-rock {
+  --heading-font: 'Metal Mania', fantasy;
+  --heading-size: 2.5rem;
+}
+
+.genre-country {
+  --heading-font: 'Rye', serif;
+}
+
+.source-note {
+  max-width: 832px;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}

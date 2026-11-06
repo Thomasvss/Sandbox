@@ -1,0 +1,19 @@
+<nav class="tabs" aria-label="Pages">
+  <a routerLink="/music" routerLinkActive="active" ariaCurrentWhenActive="page">Music</a>
+  <a routerLink="/game" routerLinkActive="active" ariaCurrentWhenActive="page">Game</a>
+  <a routerLink="/simulator" routerLinkActive="active" ariaCurrentWhenActive="page">Simulator</a>
+  <a routerLink="/heists" routerLinkActive="active" ariaCurrentWhenActive="page">Heists</a>
+  <a routerLink="/orb-pop" routerLinkActive="active" ariaCurrentWhenActive="page">Orb Pop</a>
+  <a routerLink="/quiz" routerLinkActive="active" ariaCurrentWhenActive="page">Quiz</a>
+  <button
+    type="button"
+    class="theme-toggle"
+    [attr.aria-label]="isDark() ? 'Light mode' : 'Dark mode'"
+    (click)="toggleTheme($event)"
+  >
+    {{ isDark() ? '☀' : '☾' }}
+    <span class="theme-label">{{ isDark() ? 'Light mode' : 'Dark mode' }}</span>
+  </button>
+</nav>
+
+<router-outlet />

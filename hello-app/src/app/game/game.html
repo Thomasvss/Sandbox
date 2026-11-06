@@ -1,0 +1,82 @@
+<h1>Equalizer Run</h1>
+<p class="intro">
+  Steer your record through the sound bars. The further you get, the faster the track plays.
+</p>
+
+<div class="layout">
+  <div class="stage">
+    <canvas
+      #canvas
+      role="img"
+      aria-label="Equalizer Run game field"
+      (pointerdown)="onPointerDown($event)"
+      (pointerup)="onPointerUp()"
+      (pointercancel)="onPointerUp()"
+    ></canvas>
+
+    @switch (phase()) {
+      @case ('ready') {
+        <div class="overlay">
+          <h2>Ready?</h2>
+          <p>Best: {{ bestScore() }}</p>
+          <button type="button" class="primary" (click)="start()">Start</button>
+        </div>
+      }
+      @case ('naming') {
+        <div class="overlay">
+          <h2>Scratched!</h2>
+          <p class="score">{{ finalScore() }}</p>
+          @if (isNewBest()) {
+            <p>New best score</p>
+          }
+          <form (submit)="saveScore($event)">
+            <label for="player-name">Your name</label>
+            <input
+              #nameInput
+              id="player-name"
+              type="text"
+              autocomplete="off"
+              [maxLength]="maxNameLength"
+              [value]="playerName()"
+              (input)="playerName.set(nameInput.value)"
+            />
+            <div class="actions">
+              <button type="submit" class="primary" [disabled]="!canSave()">Save score</button>
+              <button type="button" class="secondary" (click)="skipSaving()">Skip</button>
+            </div>
+          </form>
+        </div>
+      }
+      @case ('over') {
+        <div class="overlay">
+          <h2>Scratched!</h2>
+          <p class="score">{{ finalScore() }}</p>
+          <p>Best: {{ bestScore() }}</p>
+          <button #playAgain type="button" class="primary" (click)="start()">Play again</button>
+        </div>
+      }
+    }
+  </div>
+
+  <aside class="scores" aria-labelledby="scores-heading">
+    <h2 id="scores-heading">High scores</h2>
+    @if (highScores().length > 0) {
+      <ol>
+        @for (entry of highScores(); track entry.savedAt; let rank = $index) {
+          <li [class.latest]="entry.savedAt === lastSavedAt()">
+            <span class="rank">{{ rank + 1 }}.</span>
+            <span class="name">{{ entry.name }}</span>
+            <span class="points">{{ entry.score }}</span>
+          </li>
+        }
+      </ol>
+    } @else {
+      <p class="empty">No scores yet. Be the first!</p>
+    }
+  </aside>
+</div>
+
+<p class="controls">
+  Use the <kbd>&larr;</kbd> <kbd>&rarr;</kbd> arrow keys or <kbd>A</kbd> <kbd>D</kbd>. On a touch
+  screen, hold the left or right side of the game. Press <kbd>Space</kbd> to start.
+</p>

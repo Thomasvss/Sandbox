@@ -1,0 +1,120 @@
+:host {
+  display: block;
+  max-width: 900px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+h1 {
+  width: fit-content;
+  margin: 1rem auto 0.5rem;
+  background: linear-gradient(90deg, #0fa3b1, #8f3dff);
+  background-clip: text;
+  color: transparent;
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.5rem, 6vw, 2.75rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.stage {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0b1b33;
+  touch-action: none;
+  user-select: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  background: rgba(0, 0, 0, 0.62);
+  color: #fff;
+}
+
+.overlay.light {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.overlay h2,
+.overlay p {
+  margin: 0;
+}
+
+.overlay h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.1rem, 4.5vw, 2rem);
+}
+
+.overlay .score {
+  font-size: clamp(1.25rem, 5vw, 2rem);
+  font-weight: bold;
+}
+
+.overlay button {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  background: #62f0a8;
+  color: #0b1b33;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.touch-controls {
+  display: none;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.touch-controls button {
+  flex: 1;
+  padding: 1rem 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: none;
+  color: var(--text-strong);
+  font-size: 1.25rem;
+  touch-action: none;
+  user-select: none;
+}
+
+.touch-controls .fire {
+  flex: 1.4;
+  border-color: #0fa3b1;
+  font-weight: bold;
+}
+
+.controls {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+kbd {
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--key-background);
+  font-family: inherit;
+}
+
+@media (hover: none), (max-width: 700px) {
+  .touch-controls {
+    display: flex;
+  }
+}
